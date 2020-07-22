@@ -1,0 +1,23 @@
+{
+  "name": "cspray/labrador-async-db-test",
+  "require": {
+    "php": "~7.2",
+    "amphp/phpunit-util": "~1.4.0",
+    "amphp/sql": "^1.0",
+    "aura/sqlquery": "^2.7"
+  },
+  "require-dev": {
+    "amphp/postgres": "^1.2",
+    "robmorgan/phinx": "^0.12.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Cspray\\Labrador\\AsyncDbTest\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Cspray\\Labrador\\AsyncDbTest\\": "test"
+    }
+  }
+}
