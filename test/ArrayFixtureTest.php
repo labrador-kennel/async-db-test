@@ -11,7 +11,7 @@ class ArrayFixtureTest extends FixtureLoadingTestCase {
 
     public function testRecordsLoaded() {
         return call(function() {
-            $result = yield self::$connection->query('SELECT COUNT(*) AS "count" FROM foo');
+            $result = yield $this->connection->query('SELECT COUNT(*) AS "count" FROM foo');
             yield $result->advance();
             $count = $result->getCurrent()['count'];
 
