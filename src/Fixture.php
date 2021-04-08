@@ -3,10 +3,10 @@
 namespace Cspray\Labrador\AsyncDbTest;
 
 use Amp\Promise;
-use Amp\Sql\Link;
+use Amp\Sql\Executor;
 
 interface Fixture {
 
-    public function load(Link $link) : Promise;
+    public function load(Executor $executor) : Promise;
 
 }

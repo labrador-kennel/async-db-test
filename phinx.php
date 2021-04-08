@@ -15,7 +15,7 @@ return
             'name' => 'async_db_test',
             'user' => 'postgres',
             'pass' => null,
-            'port' => 5432,
+            'port' => 5420,
             'charset' => 'utf8',
         ]
     ],

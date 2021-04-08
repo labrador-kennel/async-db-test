@@ -4,7 +4,9 @@ namespace Cspray\Labrador\AsyncDbTest;
 
 use Amp\PHPUnit\AsyncTestCase;
 use Amp\Promise;
+use Amp\Sql\Executor;
 use Amp\Sql\Link;
+use Amp\Sql\Transaction;
 use Aura\SqlQuery\Common\SelectInterface;
 use Aura\SqlQuery\QueryFactory;
 use function Amp\call;
@@ -14,12 +16,19 @@ abstract class FixtureLoadingTestCase extends AsyncTestCase {
     /**
      * @var Link
      */
-    protected $connection;
+    private $connection;
+
+    /**
+     * @var Transaction
+     */
+    private $transaction;
 
     /**
      * @var QueryFactory
      */
     protected $queryFactory;
+
+
 
     public function setUp() : void {
         parent::setUp();
@@ -31,14 +40,15 @@ abstract class FixtureLoadingTestCase extends AsyncTestCase {
             if (!isset($this->connection)) {
                 $this->connection = yield $this->getConnection();
             }
-            yield $this->connection->query('START TRANSACTION');
-            yield $this->getFixture()->load($this->connection);
+            $this->transaction = yield $this->connection->beginTransaction();
+            yield $this->getFixture()->load($this->transaction);
         });
     }
 
     public function tearDownAsync() : Promise {
         return call(function() {
-            yield $this->connection->query('ROLLBACK');
+            yield $this->transaction->rollback();
+            $this->transaction->close();
         });
     }
 
@@ -47,7 +57,7 @@ abstract class FixtureLoadingTestCase extends AsyncTestCase {
             $this->addToAssertionCount(1);
 
             $query = $this->select()->cols(['COUNT(*) as count'])->from($table);
-            $result = yield $this->connection->query($query->getStatement());
+            $result = yield $this->transaction->query($query->getStatement());
             yield $result->advance();
 
             $actual = $result->getCurrent()['count'];
@@ -55,6 +65,10 @@ abstract class FixtureLoadingTestCase extends AsyncTestCase {
                 $this->fail(sprintf('Expected %s table to have %d rows but had %d rows.', $table, $expected, $actual));
             }
         });
+    }
+
+    protected function getExecutor() : Executor {
+        return $this->transaction;
     }
 
     protected function select() : SelectInterface {
