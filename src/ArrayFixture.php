@@ -4,7 +4,7 @@
 namespace Cspray\Labrador\AsyncDbTest;
 
 use Amp\Promise;
-use Amp\Sql\Link;
+use Amp\Sql\Executor;
 use Aura\SqlQuery\QueryFactory;
 use function Amp\call;
 
@@ -26,15 +26,15 @@ class ArrayFixture implements Fixture {
         return $this;
     }
 
-    public function load(Link $link) : Promise {
-        return call(function() use($link) {
+    public function load(Executor $executor) : Promise {
+        return call(function() use($executor) {
             $insert = $this->queryFactory->newInsert();
             $insert->into($this->table);
             foreach ($this->records as $record) {
                 $insert->addRow($record);
             }
 
-            $statement = yield $link->prepare($insert->getStatement());
+            $statement = yield $executor->prepare($insert->getStatement());
             yield $statement->execute($insert->getBindValues());
         });
     }

@@ -4,23 +4,27 @@ namespace Cspray\Labrador\AsyncDbTest;
 
 use Amp\Postgres\ConnectionConfig;
 use Amp\Promise;
-use function Amp\call;
 use function Amp\Postgres\pool;
 
 class ArrayFixtureTest extends FixtureLoadingTestCase {
 
+    /**
+     * @return \Generator
+     * @throws \Amp\Sql\ConnectionException
+     * @throws \Amp\Sql\FailureException
+     * @covers \Cspray\Labrador\AsyncDbTest\FixtureLoadingTestCase
+     * @covers \Cspray\Labrador\AsyncDbTest\ArrayFixture
+     */
     public function testRecordsLoaded() {
-        return call(function() {
-            $result = yield $this->connection->query('SELECT COUNT(*) AS "count" FROM foo');
-            yield $result->advance();
-            $count = $result->getCurrent()['count'];
+        $result = yield $this->getExecutor()->query('SELECT COUNT(*) AS "count" FROM foo');
+        yield $result->advance();
+        $count = $result->getCurrent()['count'];
 
-            $this->assertSame(3, $count);
-        });
+        $this->assertSame(3, $count);
     }
 
     protected function getConnection() : Promise {
-        $config = new ConnectionConfig('localhost', 5432, 'postgres', null, 'async_db_test');
+        $config = new ConnectionConfig('localhost', 5420, 'postgres', null, 'async_db_test');
         return pool($config)->extractConnection();
     }
 
